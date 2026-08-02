@@ -68,12 +68,21 @@
       (for [k (missing scene required-scene-keys)]
         (str pfx "scene missing " k))
 
-      ;; Legibility is structural here, not advisory.
+      ;; Measured tiers, when present, must be well-formed hex.
+      (for [[tier m] (select-keys (:byoubu/measured backdrop) [:plate :poster])
+            :when (nil? (color/hex->rgb (:content-color m)))]
+        (str pfx "measured " tier " content-color is not a hex color: "
+             (pr-str (:content-color m))))
+
+      ;; Legibility is structural here, not advisory — and it is checked on
+      ;; EVERY tier, because a client does not choose which one it gets.
       (let [f (facts/derive-facts backdrop)
-            c (:byoubu.facts/contrast f)]
-        (when (< (or c 0.0) facts/wcag-aa-body)
-          [(str pfx "recommended ink " (:byoubu.facts/ink f) " on content band "
-                (:byoubu.facts/content-color f) " has contrast "
-                c ", below AA body " facts/wcag-aa-body)]))))))
+            ink (:byoubu.facts/ink f)]
+        (for [[tier c] (facts/tier-colors backdrop)
+              :let [r (color/contrast-ratio ink c)]
+              :when (< (or r 0.0) facts/wcag-aa-body)]
+          (str pfx "recommended ink " ink " on the " (name tier)
+               " content band " c " has contrast " r
+               ", below AA body " facts/wcag-aa-body)))))))
 
 (defn valid? [backdrop] (empty? (problems backdrop)))

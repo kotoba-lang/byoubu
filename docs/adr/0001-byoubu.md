@@ -94,3 +94,40 @@ declaration here would be unread at best and a verifier crash at worst.
   authored in the renderer's vocabulary — have not been round-tripped through
   a GPU. The first render is the thing that will find whatever is wrong with
   them.
+
+## Addendum — 2026-08-02: T1 shipped, and measurement overturned the facts layer
+
+T1 is implemented (`render/byoubu/render/poster.cljc`, `bin/render.cljs`) and
+all four backdrops have rendered posters in `resources/byoubu/posters/`. Three
+things changed as a result, two of them corrections to this ADR.
+
+**Posters are SVG, not bitmaps.** The 3D rule permits SVG for a thumbnail or an
+explicit fallback while WebGPU stays authoritative for the live scene. SVG made
+the output text — diffable, reviewable in a PR, and small enough to live in git
+— which removed the need for the `byoubu-assets` DataLad/B2 dataset at this
+tier entirely. The silhouettes come from `terrain.noise/fbm-noise`, so the
+scene spec's `:dune-wavelength` and `:dune-amplitude` drive the real library
+rather than a second noise implementation.
+
+**The declared content bands were wrong, and the AA gate was passing on a
+fiction.** Sampling the rendered posters in Chrome (mean sRGB over the full
+width, 30%–75% of frame height) showed the content band is mostly *sky*, three
+to nineteen times brighter than the authored ground-dominated mixes. Under
+measurement `:cobalt-dune` sat at 3.97:1 — below AA — while its declared facts
+reported 15.42:1. Its palette was darkened. `:byoubu/measured` now carries the
+sampled band per tier, `byoubu.facts` prefers it over the declared mix, and a
+backdrop with a rendered poster must have been measured. The original decision
+("facts are computed, and validation enforces them") was right; computing them
+from an authored weighting was not enough to make them true.
+
+**"Content on T0 and T2 sit on the same luminance" was false.** Measured, T0's
+band is about half as bright as T1's on every dark backdrop. Corrected: the
+tiers share an *ink and appearance*, not a luminance, and `byoubu.facts` now
+picks ink by the worst tier across all of them rather than a representative
+one, so the AA guarantee holds whichever tier a client happens to get. Both
+tiers were measured; the library's computed per-tier contrasts agree with
+Chrome's to two decimals.
+
+**Still not built: T2.** `generator :tier-2 :pin` remains nil. The scene specs
+carry sky, atmosphere, camera and grade terms that only the live renderer
+consumes; T1 uses the terrain and atmosphere terms and approximates the rest.

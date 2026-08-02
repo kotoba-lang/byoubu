@@ -11,11 +11,20 @@
 
   T0 is deliberately *not* a picture of dunes: CSS gradients cannot draw a
   ridge line, and pretending otherwise produces the muddy blobs that make
-  gradient backgrounds look cheap. What it reproduces faithfully is the part
-  that governs legibility — the vertical light structure of the scene
-  (zenith, horizon glow, ground fall-off, vignette). Content placed on T0
-  and content placed on T2 sit on the same luminance, so nothing shifts when
-  the higher tier loads.
+  gradient backgrounds look cheap. What it reproduces is the vertical light
+  structure of the scene (zenith, horizon glow, ground fall-off, vignette),
+  with the skyline placed from the same `:camera :pitch-deg` the renderer
+  uses.
+
+  It does NOT reproduce the scene's luminance. Measured on 2026-08-02, the
+  T0 content band runs about half as bright as the rendered T1 poster on
+  every dark backdrop (purple-desert 0.060 vs 0.132) and slightly brighter on
+  the light one. An earlier draft of this docstring claimed the two tiers sit
+  at the same luminance; sampling both said otherwise. What IS guaranteed,
+  and tested, is that every tier resolves to the same ink and the same
+  appearance, and that each one independently clears AA body contrast with
+  that ink — see `byoubu.facts/derive-facts`, which picks ink by the worst
+  tier rather than a representative one.
 
   Layers are returned as data, not CSS strings. byoubu-ui turns them into a
   `background-image` stack via css.core; tests assert against the layer maps

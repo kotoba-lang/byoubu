@@ -15,6 +15,7 @@
   (:require [byoubu.catalog :as catalog]
             [byoubu.facts :as facts]
             [byoubu.plate :as plate]
+            [byoubu.poster :as poster]
             [byoubu.spec :as spec]))
 
 (defn- ->backdrop [x]
@@ -58,3 +59,17 @@
   "Every problem across the whole catalog — what CI asserts is empty."
   []
   (vec (mapcat #(spec/problems (catalog/fetch %)) (catalog/ids))))
+
+;; --- artifacts -------------------------------------------------------------
+(def posters poster/posters)
+
+(defn poster
+  "Tier-1 poster manifest entry for a backdrop id: {:path :bytes :sha256}, or
+  nil if none has been rendered."
+  [id]
+  (poster/poster id))
+
+(defn poster-url
+  "Poster URL under a base path, e.g. (poster-url :purple-desert \"/assets\")."
+  [id base]
+  (poster/url id base))

@@ -14,14 +14,18 @@ on top of it.
 ;; => [:cobalt-dune :ember-mesa :purple-desert :salt-flat]
 
 (byoubu/facts :purple-desert)
-;; => #:byoubu.facts{:content-color "#151124"
-;;                   :luminance     0.0069
-;;                   :appearance    :dark
-;;                   :ink           "#f4f2fa"
-;;                   :contrast      16.64
-;;                   :accent        "#a887cf"
-;;                   :accent-hue    267.5
-;;                   :glass-surface :thin}
+;; => #:byoubu.facts{:content-color   "#725b94"     ; measured, not guessed
+;;                   :luminance       0.1320
+;;                   :appearance      :dark
+;;                   :ink             "#f4f2fa"
+;;                   :contrast        5.20          ; the WORST tier, not the average
+;;                   :tier-contrasts  {:declared 16.64 :plate 8.61 :poster 5.20}
+;;                   :accent          "#a887cf"
+;;                   :accent-hue      267.5
+;;                   :glass-surface   :thin}
+
+(byoubu/poster-url :purple-desert "/assets")
+;; => "/assets/byoubu/posters/purple-desert.svg"
 ```
 
 Mounting one in a page is [`kotoba-lang/byoubu-ui`](https://github.com/kotoba-lang/byoubu-ui).
@@ -53,19 +57,31 @@ cannot contain a backdrop that is unreadable by its own recommendation.
 
 A backdrop is defined once and delivered at whichever tier the client can take.
 
-| tier | what it is | cost | who renders it |
+| tier | what it is | cost | status |
 |---|---|---|---|
-| **T0** | `byoubu.plate` — layered CSS gradients derived from the palette | ~1 KB, first frame, no network | this library |
-| **T1** | a rendered still | one image | the `:render` alias |
-| **T2** | the live WebGPU scene | GPU | the kami stack |
+| **T0** | `byoubu.plate` — layered CSS gradients derived from the palette | ~1 KB, first frame, no network | shipped |
+| **T1** | a rendered SVG poster, procedural from the seed | 9–25 KB of text, in git | shipped |
+| **T2** | the live WebGPU scene through the kami stack | GPU | not built |
 
 T0 is deliberately not a picture of dunes — CSS gradients cannot draw a ridge
 line, and pretending otherwise is how gradient backgrounds come to look cheap.
-What it reproduces faithfully is the vertical light structure that governs
-legibility: zenith, horizon glow, ground fall-off, vignette, with the skyline
-placed from the same `:camera :pitch-deg` the renderer uses. Content on T0 and
-content on T2 sit on the same luminance, so nothing shifts when a higher tier
-loads.
+What it reproduces is the vertical light structure: zenith, horizon glow,
+ground fall-off, vignette, with the skyline placed from the same
+`:camera :pitch-deg` the renderer uses.
+
+T1 is SVG rather than a bitmap because the workspace 3D rule permits SVG for a
+thumbnail or an explicit fallback (WebGPU stays authoritative for the live
+scene), and SVG buys three things a PNG would not: the output is text, so it
+is diffable, reviewable in a PR, and needs no B2/DataLad dataset; it is
+resolution-independent; and it is byte-reproducible from `:byoubu/seed`. The
+ridge and dune silhouettes come from `terrain.noise/fbm-noise` — the real
+library the scene spec names, not a second noise implementation.
+
+**The tiers do not share a luminance.** Measured 2026-08-02, T0's content band
+runs about half as bright as T1's on every dark backdrop. What is guaranteed,
+and tested, is that every tier resolves to the same ink and appearance and that
+each independently clears AA — `byoubu.facts` picks ink by the *worst* tier,
+because a client does not choose which tier it gets.
 
 ## Zero runtime dependencies, on purpose
 
@@ -95,13 +111,28 @@ Both, always. The plate emitter formats numbers, and number formatting is
 exactly where CLJ and CLJS quietly disagree — `(/ (Math/round x) 10.0)` prints
 `62.0` on one and `62` on the other. There is a test for that.
 
+## Measurement, and why it is not optional
+
+The first four entries declared their content band as an authored weighting.
+Sampling the rendered posters in Chrome showed the declared mixes were wrong —
+content sits mostly on *sky*, three to nineteen times brighter than declared —
+and that `:cobalt-dune` was actually at **3.97:1, under AA**, while its
+declared facts claimed 15.42:1. Its palette was darkened in response.
+
+So `:byoubu/measured` now carries the sampled content band for both the plate
+and the poster tier, `byoubu.facts` prefers it over the declared mix, and a
+backdrop with a rendered poster is required by test to have been measured.
+Facts derived from an authored guess are a guess with a number printed on it.
+
 ## Status
 
-The catalog, the facts layer and T0 are implemented and tested on both
-runtimes. **T1/T2 are not implemented**: `catalog/generator` has `:pin nil`
-because no artifact has been rendered from these specs yet, and recording a
-pin nobody verified would be a lie the next reader could not detect. The
-scene specs are authored in the renderer's vocabulary and validated
-structurally; they have not been round-tripped through a GPU.
+The catalog, facts, T0 and T1 are implemented and tested on both runtimes;
+28 tests / 308 assertions. The library's computed per-tier contrasts match
+what Chrome measured off the rendered output to two decimals.
+
+**T2 is not built.** `generator :tier-2 :pin` is nil rather than a sha nobody
+verified — nothing here has been through a GPU. The scene specs carry sky,
+atmosphere, camera and grade parameters that only T2 consumes; T1 uses the
+terrain and atmosphere terms and approximates the rest.
 
 See `docs/adr/0001-byoubu.md`.

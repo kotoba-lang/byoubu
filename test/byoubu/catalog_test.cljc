@@ -3,7 +3,8 @@
             [byoubu.core :as byoubu]
             [byoubu.catalog :as catalog]
             [byoubu.color :as color]
-            [byoubu.facts :as facts]))
+            [byoubu.facts :as facts]
+            [byoubu.poster :as poster]))
 
 (deftest catalog-is-valid
   (testing "every catalog entry is structurally valid and readable"
@@ -33,10 +34,13 @@
             (str id " names a terrain biome"))))))
 
 (deftest generator-pin-is-honest
-  (testing "no artifact has been rendered yet, so the pin must be nil rather
-            than a sha nobody verified"
-    (is (nil? (:pin catalog/generator)))
-    (is (seq (:stack catalog/generator)))))
+  (testing "tier 1 ran, so its pin is a real sha written by the renderer;
+            tier 2 has not, so its pin is nil rather than a sha nobody verified"
+    (is (nil? (get-in catalog/generator [:tier-2 :pin])))
+    (is (seq (get-in catalog/generator [:tier-2 :stack])))
+    (is (re-matches #"[0-9a-f]{40}" (:terrain poster/generated-by))
+        "the terrain sha the posters were rendered against")
+    (is (contains? (set (get-in catalog/generator [:tier-1 :stack])) :kotoba-lang/terrain))))
 
 (deftest scene-vocabulary-stays-in-the-kami-stack
   (testing "terrain biomes are the ones kami-terrain-scene actually defines"
@@ -95,6 +99,67 @@
       (is (= (get-in b [:byoubu/palette (:byoubu/accent b)])
              (:byoubu.facts/accent f))
           (str id " accent resolves through the palette")))))
+
+;; --- measurement -----------------------------------------------------------
+
+(deftest a-rendered-backdrop-must-be-measured
+  (testing "if a poster exists, its content band has been sampled — facts
+            derived from an authored guess are a guess with a number on it"
+    (doseq [id (byoubu/ids)]
+      (when (byoubu/poster id)
+        (let [m (:byoubu/measured (byoubu/fetch id))]
+          (is (some? (get-in m [:poster :content-color])) (str id " poster measured"))
+          (is (some? (get-in m [:plate :content-color])) (str id " plate measured"))
+          (is (string? (:method m)) (str id " records how it was measured"))
+          (is (string? (:date m)) (str id " records when")))))))
+
+(deftest every-tier-clears-aa
+  (testing "a client does not choose its tier: a cold load gets the gradient
+            plate, a warm one gets the poster, and both must be readable"
+    (doseq [id (byoubu/ids)
+            [tier ratio] (:byoubu.facts/tier-contrasts (byoubu/facts id))]
+      (is (>= ratio byoubu/wcag-aa-body)
+          (str id " on the " (name tier) " tier: " ratio)))))
+
+(deftest measured-supersedes-declared
+  (testing "content-color reports the measured poster band, not the mix"
+    (let [b (byoubu/fetch :purple-desert)]
+      (is (= "#725b94" (:byoubu.facts/content-color (byoubu/facts :purple-desert))))
+      (is (not= (facts/declared-content-color b)
+                (:byoubu.facts/content-color (byoubu/facts b)))
+          "and the two genuinely differ — which is why measuring mattered"))))
+
+(deftest ink-is-chosen-by-the-worst-tier
+  (testing "a backdrop whose plate is dark but whose poster is bright must not
+            pick ink from the flattering tier"
+    (let [b (-> (byoubu/fetch :purple-desert)
+                (assoc-in [:byoubu/measured :plate :content-color] "#000000")
+                (assoc-in [:byoubu/measured :poster :content-color] "#8f8f8f"))
+          f (byoubu/facts b)]
+      ;; light ink on #8f8f8f is ~3.1:1; dark ink on #000000 is ~1.1:1 —
+      ;; light still wins on the minimum, and the reported contrast is that
+      ;; minimum, not the comfortable 18:1 it gets on the plate.
+      (is (= (:light facts/ink-candidates) (:byoubu.facts/ink f)))
+      (is (< (:byoubu.facts/contrast f) 4.0)
+          "the reported contrast is the worst tier, so the AA gate can see it")
+      (is (some #(re-find #"below AA body" %) (byoubu/problems b))))))
+
+;; --- poster manifest -------------------------------------------------------
+
+(deftest every-backdrop-has-a-rendered-poster
+  (doseq [id (byoubu/ids)]
+    (let [p (byoubu/poster id)]
+      (is (some? p) (str id " has a poster"))
+      (is (= (str "byoubu/posters/" (name id) ".svg") (:path p)))
+      (is (pos? (:bytes p)))
+      (is (re-matches #"[0-9a-f]{64}" (:sha256 p)) (str id " digest")))))
+
+(deftest poster-urls-join-cleanly
+  (is (= "/assets/byoubu/posters/purple-desert.svg"
+         (byoubu/poster-url :purple-desert "/assets")))
+  (is (= "/assets/byoubu/posters/purple-desert.svg"
+         (byoubu/poster-url :purple-desert "/assets/")) "trailing slash")
+  (is (nil? (byoubu/poster-url :no-such "/assets"))))
 
 (deftest facts-cannot-drift
   (testing "facts are a pure function of the backdrop, so two calls agree"

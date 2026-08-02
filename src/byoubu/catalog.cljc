@@ -58,6 +58,12 @@
                      :dune-shadow  "#0d0a15"
                      :star         "#e9e4ff"}
     :byoubu/content-band [[:sky-mid 0.30] [:dune-shadow 0.45] [:ridge-near 0.25]]
+    :byoubu/measured
+    {:method "mean sRGB over the content band — full width, 30%–75% of frame
+              height — rasterized and sampled in Chrome"
+     :date   "2026-08-02"
+     :plate  {:content-color "#4d3d6c" :luminance 0.06}
+     :poster {:content-color "#725b94" :luminance 0.132}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -8.5
                                   :turbidity 2.1
@@ -78,16 +84,26 @@
     :byoubu/seed    4471
     :byoubu/texture :calm
     :byoubu/accent  :sky-horizon
-    :byoubu/palette {:sky-zenith   "#050b1c"
-                     :sky-mid      "#123055"
-                     :sky-horizon  "#79b8e0"
-                     :haze         "#3f6f9c"
+    ;; Darker than the first draft: measured against the rendered poster, the
+    ;; original #123055 / #79b8e0 sky put the content band at 3.97:1, under AA.
+    ;; The blue hour is bright, and a backdrop being true to life does not
+    ;; excuse text you cannot read on it.
+    :byoubu/palette {:sky-zenith   "#040814"
+                     :sky-mid      "#0c2038"
+                     :sky-horizon  "#43718f"
+                     :haze         "#2b4c6b"
                      :ridge-far    "#1d3a5c"
                      :ridge-near   "#0e1b2e"
                      :dune-lit     "#23415f"
                      :dune-shadow  "#080f1a"
                      :star         "#dbeeff"}
     :byoubu/content-band [[:sky-mid 0.28] [:dune-shadow 0.42] [:ridge-near 0.30]]
+    :byoubu/measured
+    {:method "mean sRGB over the content band — full width, 30%–75% of frame
+              height — rasterized and sampled in Chrome"
+     :date   "2026-08-02"
+     :plate  {:content-color "#213d57" :luminance 0.0435}
+     :poster {:content-color "#2e516c" :luminance 0.0755}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -4.0
                                   :turbidity 2.6
@@ -119,6 +135,12 @@
                      :dune-shadow  "#140809"
                      :star         "#ffe6c9"}
     :byoubu/content-band [[:sky-mid 0.26] [:dune-shadow 0.44] [:ridge-near 0.30]]
+    :byoubu/measured
+    {:method "mean sRGB over the content band — full width, 30%–75% of frame
+              height — rasterized and sampled in Chrome"
+     :date   "2026-08-02"
+     :plate  {:content-color "#773d2e" :luminance 0.0746}
+     :poster {:content-color "#9a5637" :luminance 0.138}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -1.5
                                   :turbidity 4.4
@@ -151,6 +173,12 @@
                      :dune-shadow  "#c8c4ba"
                      :star         "#ffffff"}
     :byoubu/content-band [[:sky-mid 0.22] [:dune-lit 0.48] [:dune-shadow 0.30]]
+    :byoubu/measured
+    {:method "mean sRGB over the content band — full width, 30%–75% of frame
+              height — rasterized and sampled in Chrome"
+     :date   "2026-08-02"
+     :plate  {:content-color "#d6dbe2" :luminance 0.7045}
+     :poster {:content-color "#c7ced5" :luminance 0.6109}}
     :byoubu/scene   {:sky        {:model :overcast
                                   :sun-elevation-deg 61.0
                                   :turbidity 7.5
@@ -163,13 +191,18 @@
                                   :vignette 0.12}}}})
 
 (def generator
-  "What produced the scene specs above, so a re-render is reproducible.
-  `:pin` is set by the renderer when it writes an artifact; it is nil here
-  because no artifact has been rendered from this catalog yet — recording a
-  pin we did not verify would be a lie the next reader could not detect."
-  {:stack [:kotoba-lang/sky :kotoba-lang/atmosphere
-           :kotoba-lang/terrain :kotoba-lang/postfx :kotoba-lang/webgpu]
-   :pin   nil})
+  "Which repos a scene spec is written against, per tier.
+
+  `:tier-1` names what actually ran; the shas it ran at live in
+  `byoubu.poster/generated-by`, written by the renderer in the same pass that
+  wrote the SVGs, so the pin can never be a claim about a render that did not
+  happen. `:tier-2` is still a plan — nothing has been through a GPU, and the
+  key is nil rather than a sha nobody verified."
+  {:tier-1 {:stack [:kotoba-lang/terrain]
+            :pin   :see-byoubu.poster/generated-by}
+   :tier-2 {:stack [:kotoba-lang/sky :kotoba-lang/atmosphere
+                    :kotoba-lang/terrain :kotoba-lang/postfx :kotoba-lang/webgpu]
+            :pin   nil}})
 
 (defn ids
   "All backdrop ids, sorted, so callers get a stable order."
