@@ -61,7 +61,7 @@ A backdrop is defined once and delivered at whichever tier the client can take.
 |---|---|---|---|
 | **T0** | `byoubu.plate` — layered CSS gradients derived from the palette | ~1 KB, first frame, no network | shipped |
 | **T1** | a rendered SVG poster, procedural from the seed | 9–25 KB of text, in git | shipped |
-| **T2** | the live WebGPU scene through the kami stack | GPU | not built |
+| **T2** | the live WebGPU scene through the kami stack | GPU | shipped — [`byoubu-gpu`](https://github.com/kotoba-lang/byoubu-gpu) |
 
 T0 is deliberately not a picture of dunes — CSS gradients cannot draw a ridge
 line, and pretending otherwise is how gradient backgrounds come to look cheap.
@@ -77,11 +77,19 @@ resolution-independent; and it is byte-reproducible from `:byoubu/seed`. The
 ridge and dune silhouettes come from `terrain.noise/fbm-noise` — the real
 library the scene spec names, not a second noise implementation.
 
-**The tiers do not share a luminance.** Measured 2026-08-02, T0's content band
-runs about half as bright as T1's on every dark backdrop. What is guaranteed,
-and tested, is that every tier resolves to the same ink and appearance and that
-each independently clears AA — `byoubu.facts` picks ink by the *worst* tier,
-because a client does not choose which tier it gets.
+**The tiers do not share a luminance.** Measured, T0's content band runs about
+half as bright as T1's on every dark backdrop, and T2 lands between them. What
+is guaranteed, and tested, is that every tier resolves to the same ink and
+appearance and that each independently clears AA — `byoubu.facts` picks ink by
+the *worst* tier, because a client does not choose which tier it gets.
+
+```
+                 declared   plate    poster   gpu
+purple-desert      16.64     8.61      5.20   7.42
+cobalt-dune        16.21    10.12      7.54   9.69
+ember-mesa         16.19     7.60      5.03   6.50
+salt-flat          14.22    13.63     11.94  14.45     (dark ink)
+```
 
 ## Zero runtime dependencies, on purpose
 
@@ -130,9 +138,9 @@ The catalog, facts, T0 and T1 are implemented and tested on both runtimes;
 28 tests / 308 assertions. The library's computed per-tier contrasts match
 what Chrome measured off the rendered output to two decimals.
 
-**T2 is not built.** `generator :tier-2 :pin` is nil rather than a sha nobody
-verified — nothing here has been through a GPU. The scene specs carry sky,
-atmosphere, camera and grade parameters that only T2 consumes; T1 uses the
-terrain and atmosphere terms and approximates the rest.
+T2 lives in [`byoubu-gpu`](https://github.com/kotoba-lang/byoubu-gpu) — the
+same scene spec compiled to WGSL and handed to `kami.webgpu` as a one-pass
+render graph. Verified in Chrome on a real WebGPU device; its content band is
+the `:gpu` tier above.
 
 See `docs/adr/0001-byoubu.md`.

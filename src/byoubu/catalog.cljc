@@ -63,7 +63,8 @@
               height — rasterized and sampled in Chrome"
      :date   "2026-08-02"
      :plate  {:content-color "#4d3d6c" :luminance 0.06}
-     :poster {:content-color "#725b94" :luminance 0.132}}
+     :poster {:content-color "#725b94" :luminance 0.132}
+     :gpu    {:content-color "#584676" :luminance 0.0776}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -8.5
                                   :turbidity 2.1
@@ -103,7 +104,8 @@
               height — rasterized and sampled in Chrome"
      :date   "2026-08-02"
      :plate  {:content-color "#213d57" :luminance 0.0435}
-     :poster {:content-color "#2e516c" :luminance 0.0755}}
+     :poster {:content-color "#2e516c" :luminance 0.0755}
+     :gpu    {:content-color "#23405a" :luminance 0.0476}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -4.0
                                   :turbidity 2.6
@@ -140,7 +142,8 @@
               height — rasterized and sampled in Chrome"
      :date   "2026-08-02"
      :plate  {:content-color "#773d2e" :luminance 0.0746}
-     :poster {:content-color "#9a5637" :luminance 0.138}}
+     :poster {:content-color "#9a5637" :luminance 0.138}
+     :gpu    {:content-color "#834731" :luminance 0.0955}}
     :byoubu/scene   {:sky        {:model :twilight-scatter
                                   :sun-elevation-deg -1.5
                                   :turbidity 4.4
@@ -178,7 +181,8 @@
               height — rasterized and sampled in Chrome"
      :date   "2026-08-02"
      :plate  {:content-color "#d6dbe2" :luminance 0.7045}
-     :poster {:content-color "#c7ced5" :luminance 0.6109}}
+     :poster {:content-color "#c7ced5" :luminance 0.6109}
+     :gpu    {:content-color "#dee1e4" :luminance 0.7498}}
     :byoubu/scene   {:sky        {:model :overcast
                                   :sun-elevation-deg 61.0
                                   :turbidity 7.5

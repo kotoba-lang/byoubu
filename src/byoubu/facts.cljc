@@ -40,9 +40,10 @@
   authored guess are a guess with a number printed on it."
   [backdrop]
   (let [m (:byoubu/measured backdrop)]
-    (cond-> {:declared (declared-content-color backdrop)}
-      (get-in m [:plate :content-color])  (assoc :plate (get-in m [:plate :content-color]))
-      (get-in m [:poster :content-color]) (assoc :poster (get-in m [:poster :content-color])))))
+    (reduce (fn [acc tier]
+              (if-let [c (get-in m [tier :content-color])] (assoc acc tier c) acc))
+            {:declared (declared-content-color backdrop)}
+            [:plate :poster :gpu])))
 
 (defn content-color
   "The single color that best represents what a reader sees behind body
