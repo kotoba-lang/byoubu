@@ -8,7 +8,7 @@
   namespace. `src/` can therefore state what a poster is without doing
   file IO (which differs between CLJ and CLJS) and without depending on
   a hash implementation."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def dimensions {:width 1600 :height 900})
 

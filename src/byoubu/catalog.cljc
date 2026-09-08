@@ -23,7 +23,7 @@
 
   IDs are stable and immutable once published: consumers pin them. A
   changed look is a new id, not an edited entry."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 ;; ---------------------------------------------------------------------------
 ;; Scene vocabulary note
