@@ -22,7 +22,7 @@
   (:require [byoubu.core :as byoubu]
             [byoubu.color :as color]
             [terrain.noise :as noise]
-            [clojure.string :as str]))
+            [kotoba.lang.text :as str]))
 
 (def width 1600)
 (def height 900)

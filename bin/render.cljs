@@ -17,7 +17,7 @@
   (:require ["node:fs" :as fs]
             ["node:crypto" :as crypto]
             ["node:child_process" :as cp]
-            [clojure.string :as str]
+            [kotoba.lang.text :as str]
             [byoubu.core :as byoubu]
             [byoubu.render.poster :as poster]))
 
@@ -72,7 +72,7 @@
        "  namespace. `src/` can therefore state what a poster is without doing\n"
        "  file IO (which differs between CLJ and CLJS) and without depending on\n"
        "  a hash implementation.\"\n"
-       "  (:require [clojure.string :as str]))\n\n"
+       "  (:require [kotoba.lang.text :as str]))\n\n"
        "(def dimensions {:width " poster/width " :height " poster/height "})\n\n"
        "(def generated-by\n"
        "  \"Repo pins of what produced these artifacts. Unlike\n"
