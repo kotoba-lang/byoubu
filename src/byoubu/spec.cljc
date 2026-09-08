@@ -8,7 +8,7 @@
   malformed in the same sense as one missing a palette key."
   (:require [byoubu.color :as color]
             [byoubu.facts :as facts]
-            [clojure.string :as str]))
+            [kotoba.lang.text :as str]))
 
 (def required-palette-keys
   "Every backdrop names the same nine roles. A fixed vocabulary is what lets

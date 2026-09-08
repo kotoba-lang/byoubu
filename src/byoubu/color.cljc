@@ -10,12 +10,12 @@
 
   Zero deps, pure functions, portable CLJ/CLJS. Reader conditionals are used
   only for `Math/pow` (WCAG's 2.4 gamma), which has no portable spelling."
-  (:require [clojure.string :as str]))
+  (:require [kotoba.lang.text :as str]))
 
 (def ^:private hex-digits "0123456789abcdef")
 
 (defn- hex-digit [c]
-  (str/index-of hex-digits (str/lower-case (str c))))
+  (str/index-of hex-digits (str/lower (str c))))
 
 (defn- pow [x e] #?(:clj (Math/pow x e) :cljs (js/Math.pow x e)))
 
@@ -28,7 +28,7 @@
   Returns nil for anything that is not a well-formed hex triple, so callers
   can validate rather than silently render black."
   [hex]
-  (let [h (str/lower-case (str hex))
+  (let [h (str/lower (str hex))
         h (cond-> h (str/starts-with? h "#") (subs 1))
         h (if (= 3 (count h)) (apply str (mapcat (fn [c] [c c]) h)) h)]
     (when (and (= 6 (count h)) (every? hex-digit h))
