@@ -1,5 +1,5 @@
 (ns test
-  "nbb test entry: `nbb bin/test.cljs` from the repo root.
+  "nbb test entry: `nbb bin/test.cljk` from the repo root.
 
   The JVM runner (`clojure -M:test`) and this one execute the same .cljc
   test namespaces. Both are run before a release because the plate emitter
