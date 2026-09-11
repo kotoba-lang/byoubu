@@ -111,7 +111,7 @@ changed look is a new id, not an edited entry.
 ## Tests
 
 ```bash
-nbb bin/test.cljs      # ClojureScript
+nbb bin/test.cljk      # ClojureScript
 clojure -M:test        # JVM
 ```
 

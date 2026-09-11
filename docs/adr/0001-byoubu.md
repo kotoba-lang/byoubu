@@ -97,7 +97,7 @@ declaration here would be unread at best and a verifier crash at worst.
 
 ## Addendum — 2026-08-02: T1 shipped, and measurement overturned the facts layer
 
-T1 is implemented (`render/byoubu/render/poster.cljc`, `bin/render.cljs`) and
+T1 is implemented (`render/byoubu/render/poster.cljk`, `bin/render.cljk`) and
 all four backdrops have rendered posters in `resources/byoubu/posters/`. Three
 things changed as a result, two of them corrections to this ADR.
 
