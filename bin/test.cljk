@@ -1,7 +1,7 @@
 (ns test
-  "nbb test entry: `nbb bin/test.cljk` from the repo root.
+  "nbb test entry: `kbb --backend sci bin/test.cljk` from the repo root.
 
-  The JVM runner (`clojure -M:test`) and this one execute the same .cljc
+  The JVM runner (`kbb -M:test`) and this one execute the same .cljc
   test namespaces. Both are run before a release because the plate emitter
   formats numbers, and number formatting is exactly where CLJ and CLJS
   quietly disagree."
