@@ -111,8 +111,8 @@ changed look is a new id, not an edited entry.
 ## Tests
 
 ```bash
-nbb bin/test.cljk      # ClojureScript
-clojure -M:test        # JVM
+kbb --backend sci bin/test.cljk      # ClojureScript
+kbb -M:test        # JVM
 ```
 
 Both, always. The plate emitter formats numbers, and number formatting is

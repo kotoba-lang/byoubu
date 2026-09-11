@@ -1,5 +1,5 @@
 ;; nbb does not resolve :deps from deps.edn; byoubu has none, so :paths is
-;; the whole story. `nbb bin/test.cljk` runs the same .cljc tests the JVM
+;; the whole story. `kbb --backend sci bin/test.cljk` runs the same .cljc tests the JVM
 ;; runner does — a portable library that is only ever tested on one runtime
 ;; is not known to be portable.
 {:paths ["src" "test"]}
