@@ -1,5 +1,5 @@
 (ns byoubu.catalog-test
-  (:require [clojure.test :refer [deftest is testing]]
+  (:require [kotoba.test :refer [deftest is testing]]
             [byoubu.core :as byoubu]
             [byoubu.catalog :as catalog]
             [byoubu.color :as color]
