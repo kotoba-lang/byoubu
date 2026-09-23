@@ -2,4 +2,9 @@
 ;; the whole story. `kbb --backend sci bin/test.cljk` runs the same .cljc tests the JVM
 ;; runner does — a portable library that is only ever tested on one runtime
 ;; is not known to be portable.
-{:paths ["src" "test"]}
+{:deps {
+        ;; kotoba.test (clojure.test-compatible surface), not clojure.test --
+        ;; scripts/migrate-clojure-test-to-kotoba-test.cljk. Explicit floor.
+        io.github.kotoba-lang/test {:git/url "https://github.com/kotoba-lang/test.git"
+                                    :git/sha "2ab4885f99fd25552d380d0f6b0b54c5a72eb7ae"}}
+ :paths ["src" "test"]}
