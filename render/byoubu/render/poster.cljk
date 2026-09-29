@@ -1,7 +1,7 @@
 (ns byoubu.render.poster
   "Tier 1: render a `:byoubu/scene` to a deterministic SVG poster.
 
-  Why SVG and not a bitmap. The workspace 3D rule (CLAUDE.md) makes WebGPU /
+  Why SVG and not a bitmap. The workspace 3D rule (AGENTS.md) makes WebGPU /
   WebGL 2.0 the authoritative renderer and permits DOM/SVG only for
   \"非3D overlay、diagram、thumbnail、明示された degraded fallback\". A T1
   poster is exactly a thumbnail/fallback, so SVG is in bounds — and it buys
